@@ -1,5 +1,5 @@
 class Point {
-	constructor (x, y, userData){
+	constructor(x, y, userData) {
 		this.x = x;
 		this.y = y;
 		this.userData = userData ;
@@ -7,14 +7,14 @@ class Point {
 }
 
 class Rectangle {
-	constructor (x, y, w, h){
+	constructor(x, y, w, h) {
 		this.x = x; // center
 		this.y = y;
 		this.w = w; // half width
 		this.h = h; // half height
 	}
 	// verifica si este objeto contiene un objeto Punto
-	contains (point) {
+	contains(point) {
 		if (point.x >= this.x - this.w && point.x <= this.x + this.w && 
 			point.y >= this.y - this.h && point.y <= this.y + this.h){
 			return 1;
@@ -22,7 +22,7 @@ class Rectangle {
 		return 0;
 	}
 	// verifica si este objeto se intersecta con otro objeto Rectangle
-	intersects (range) {
+	intersects(range) {
 		return !(range.x - range.w > this.x + this.w || range.x + range.w < this.x - this.w ||
 				range.y - range.h > this.y + this.h || range.y + range.h < this.y - this.h);
 	}
@@ -72,12 +72,29 @@ class QuadTree {
 		}
 	}
 
+	query(range, found) {//Rectangle & points, resp.
+		if (this.boundary.intersects(range)) {
+			if (this.divided) {
+				this.northeast.query(range, found);
+				this.northwest.query(range, found);
+				this.southeast.query(range, found);
+				this.southwest.query(range, found);
+			}
+			for (let p of this.points) {
+				if (range.contains(p)) {
+					found.push(p);
+				}
+			}
+		}
+		return found;
+	}
+
 	show() {
 		stroke(255);
 		strokeWeight(1);
 		noFill();
 		rectMode(CENTER);
-		rect(this.boundary.x, this.boundary.y, this.boundary.w*2 , this.boundary.h*2);
+		rect(this.boundary.x, this.boundary.y, this.boundary.w*2, this.boundary.h*2);
 		if (this.divided) {
 			this.northeast.show();
 			this.northwest.show();
