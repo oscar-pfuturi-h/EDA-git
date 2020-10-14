@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, inicial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>OcTree</title>
+	<script src="../p5.min.js"></script>
+	<style type="text/css">
+		body {
+			width: 100%;
+			height: 100%;
+			margin: 0;
+			display: inline-block;
+			text-align: center;
+		}
+		#canvas {
+			width: 85%;
+			height: 100%;
+		}
+		#buttons {
+			float: left;
+			width: 15%;
+			height: 100%;
+			text-align: left;
+		}
+		label {
+			display: block;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="buttons">
+		<h1>OCTREE</h1>
+
+		<label>Crear Octree</label>
+		<input type="text" id="size" placeholder="Tamaño" size="3">
+		<input type="text" id="n1" placeholder="n" size="1">
+		<button onclick="create()">Crear</button>
+
+		<label>Crear Puntos</label>
+		<input type="text" id="n2" placeholder="n" size="1">
+		<button onclick="nrand()">Aleatorio</button>
+
+		<input type="text" id="X" placeholder="x" size="1">
+		<input type="text" id="Y" placeholder="y" size="1">
+		<input type="text" id="Z" placeholder="z" size="1">
+
+		<button onclick="insert()">Insertar</button>
+
+		<label>Buscar</label>
+		<input type="text" id="CX" placeholder="x" size="1">
+		<input type="text" id="CY" placeholder="y" size="1">
+		<input type="text" id="CZ" placeholder="z" size="1">
+
+		<input type="text" id="CW" placeholder="w" size="1">
+		<input type="text" id="CH" placeholder="h" size="1">
+		<input type="text" id="CD" placeholder="d" size="1">
+
+		<button onclick="query()">Query</button>
+		<button onclick="squery()">Show Query</button>
+		<button onclick="dquery()">Clean Query</button>
+
+		<label>Eliminar Octree</label>
+		<button onclick="clean()">Eliminar</button>
+
+		<div id="found"></div>
+	</div>
+
+	<canvas id="canvas"></canvas>
+
+	
+	<script type="text/javascript">
+		function create() {
+			var m = document.getElementById("size").value;
+			var n = document.getElementById("n1").value;
+			createOctree(m, n);
+		}
+
+		function insert() {
+			var px = document.getElementById("X").value;
+			var py = document.getElementById("Y").value;
+			var pz = document.getElementById("Z").value;
+			let point = new Point(px, py, pz);
+			octree.insert(point);
+		}
+
+		function query() {
+			dquery();
+			var cx = document.getElementById("CX").value;
+			var cy = document.getElementById("CY").value;
+			var cz = document.getElementById("CZ").value;
+			var cw = document.getElementById("CW").value;
+			var ch = document.getElementById("CH").value;
+			var cd = document.getElementById("CD").value;
+			let box = new Box(cx, cy, cz, cw, ch, cd);
+			let found = [];
+			octree.query(box, found);
+			document.getElementById("found").innerHTML = "Found points: " + found.length;
+		}
+
+		function squery() {
+			dquery();
+			var cx = document.getElementById("CX").value;
+			var cy = document.getElementById("CY").value;
+			var cz = document.getElementById("CZ").value;
+			var cw = document.getElementById("CW").value;
+			var ch = document.getElementById("CH").value;
+			var cd = document.getElementById("CD").value;
+			let geometry = new THREE.BoxGeometry(cw*2, ch*2, cd*2);
+			var material = new THREE.MeshBasicMaterial({color: 0x00ff00, opacity: 0.2, transparent: false});
+			material.color.set(this.color);
+			var cube = new THREE.Mesh(geometry, material);
+			cube.position.set(cx, cy, cz);
+			q = cube;
+			scene.add(q);
+		}
+
+		function dquery() {
+			var cx = document.getElementById("CX").value;
+			var cy = document.getElementById("CY").value;
+			var cz = document.getElementById("CZ").value;
+			var cw = document.getElementById("CW").value;
+			var ch = document.getElementById("CH").value;
+			var cd = document.getElementById("CD").value;
+			let box = new Box(cx, cy, cz, cw, ch, cd);
+			// octree.cleanQuery(box);
+			scene.remove(q);
+			q = null;
+		}
+
+		function nrand() {
+			var nr = document.getElementById("n2").value;
+			var m = document.getElementById("size").value;
+			createPoint(m, nr);
+		}
+
+		function clean() {
+			scene = new THREE.Scene();
+			scene.add(axesHelper);
+		}
+	</script>
+	<script src="../three.js"></script>
+	<script src="../OrbitControls.js"></script>
+	<script src="octree.js"></script>
+	<script src="sketch.js"></script>
+</body>
+</html>
